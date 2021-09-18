@@ -2,7 +2,7 @@
 // @name        Anti Saya War Bot
 // @namespace   Violentmonkey Scripts
 // @grant       none
-// @version     1.1
+// @version     1.2
 // @author      MiniGareth
 // @match        https://web.whatsapp.com/*
 // @description I will win the war
@@ -43,11 +43,13 @@ function bot(){
     
     try {
       //Check if last message from her contains a thumbs up
-      let messages = document.getElementsByClassName("Nm1g1 _22AX6");
+      //Taking chat screen class because stickers and text have different classes
+      let chatScreen = document.getElementsByClassName("y8WcF")[0];
+      let messages = chatScreen.children;
       let lastMsg = messages[messages.length - 1];
 
       //Check if the lastMsg is Saya's message
-      if (lastMsg.childNodes[0].attributes[0].nodeValue == "Saya:"){
+      if (isSaya(lastMsg)){
         //Check if her message contained a thumbs up
         if(hasThumbs(lastMsg)){
           console.log("I GOT IT");
@@ -79,9 +81,45 @@ function hasThumbs(msg){
     if (arr[i].alt == "👍🏼"){
       return true;
     }
+    //Yellow thumbs up img
+    else if (arr[i].src == "blob:https://web.whatsapp.com/95e06bf6-ffaf-4c76-9456-1fa5a499ed03"){
+      return true;
+    }
+    //Brown thumbs up sticker
+    else if (arr[i].src == "blob:https://web.whatsapp.com/db7755d6-18da-4246-9703-6f83d33fdad4"){
+      return true;
+    }
   }
   return false;
 }
+
+
+//This function loops throught the array of spans in LastMsg
+//If one span has the attribute aria_label = Saya, then the msg is from Saya
+function isSaya(msg){
+  let arr = msg.querySelectorAll("span");
+  //Loop through array
+  for (let i = 0; i < arr.length; i++){
+    console.log(arr[i]);
+    try {
+      if (arr[i].attributes[0].nodeValue == "Saya:"){
+        return true;
+      }
+    } catch(error){
+      continue;
+      console.log(error);
+      
+    }
+  }
+  return false;
+}
+
+
+/*
+ * Need to have a function that loops through message history and decide who is talking last smarter
+ * Also need a function that checks for who actually has the last thumbs up in the sea of messages.
+ */
+
 
 //Initialize Bot
 setInterval(function(){
